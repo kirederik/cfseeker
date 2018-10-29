@@ -1,6 +1,7 @@
 package api
 
 import (
+	"crypto/subtle"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -48,8 +49,8 @@ func basicAuth(h SeekerHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, request *http.Request) {
 		//The easy part of basic auth
 		isAuthorized := func(username, password string) bool {
-			return username == configuration.Server.BasicAuth.Username &&
-				password == configuration.Server.BasicAuth.Password
+			return subtle.ConstantTimeCompare([]byte(username), []byte(configuration.Server.BasicAuth.Username)) == 1 &&
+				subtle.ConstantTimeCompare([]byte(password), []byte(configuration.Server.BasicAuth.Password)) == 1
 		}
 
 		//Get basic auth if its there
